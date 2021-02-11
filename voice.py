@@ -90,7 +90,7 @@ async def play(ctx, *, search): #play
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
-            'preferredquality': '320', #192 default
+            'preferredquality': '192', #192 default
         }],
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl: #parece que se instancia como ydl_opts
@@ -156,4 +156,4 @@ async def stop(ctx):
 
     
 
-client.run('ODA4ODEyMjQ1OTczOTkxNDM0.YCL_Gg.WomxToYbTNbL5r3XtTygbRj7hpw')
+client.run('ODA4ODEyMjQ1OTczOTkxNDM0.YCL_Gg.GhVrG8rnBqe97n5X0u6AtpvHNDY')
