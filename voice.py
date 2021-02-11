@@ -10,11 +10,20 @@ import re
 
 client = commands.Bot(command_prefix=">", description="Hi")
 
+'''  
+Falta areglar, si no esta tocando nada que se salga del canal de voz etc
+
+bucle infinito con while
+
+https://www.mclibre.org/consultar/python/lecciones/python-while.html
+https://www.mclibre.org/consultar/python/lecciones/python-while.html
+
+'''
 
 @client.event
 async def on_ready():
     print('logueado como {0.user}'.format(client))
-    activity = discord.Game(name=">ayuda ó >help",url="https://www.youtube.com/watch?v=V2hlQkVJZhE")
+    activity = discord.Game(name=">ayuda ó >helpp",url="https://www.youtube.com/watch?v=V2hlQkVJZhE")
     await client.change_presence(status=discord.Status.online, activity=activity) #idle, online
 
 @client.event
@@ -34,13 +43,16 @@ async def on_messaje(message):
 async def info(ctx):
     autor = str(ctx.message.author) + " se la come!"
     embed = discord.Embed(title=f"{ctx.guild.name}", description= autor, timestamp=datetime.datetime.utcnow(), color=discord.Color.green())
-    embed.add_field(name="Server creado a las", value=f"{ctx.guild.created_at}")
-    embed.add_field(name="Server poseído", value=f"{ctx.guild.owner}")
-    embed.add_field(name="Server Region", value=f"{ctx.guild.region}")
-    embed.add_field(name="Server ID", value=f"{ctx.guild.id}")
+    embed.add_field(name="Server creado a las", value=f"{ctx.guild.created_at}", inline=True)
+    embed.add_field(name="Server poseído", value=f"{ctx.guild.owner}", inline=True)
+    embed.add_field(name="Server Region", value=f"{ctx.guild.region}", inline=True)
+    embed.add_field(name="Server ID", value=f"{ctx.guild.id}", inline=True)
+    embed.add_field(name="Miembros", value=f"{ctx.guild.member_count}", inline=True)
+    
+    #embed.add_field(name="Miembros", value=f"{ctx.guild.members}", inline=True)
     # embed.set_thumbnail(url=f"{ctx.guild.icon}")
-    embed.set_thumbnail(url="https://pluralsight.imgix.net/paths/python-7be70baaac.png")
-
+    # embed.set_thumbnail(url=icon)
+    embed.set_thumbnail(url="https://i.imgur.com/XFubD8u.png")
     await ctx.send(embed=embed)
 
 
@@ -59,6 +71,8 @@ async def youtube(ctx, *, search):
 
 
 
+#para hacer la lista puedo simplemente hacer un array que guarde las url de los videos, cuando termina una, sigue la otra y así
+
 
 
 @client.command()
@@ -70,19 +84,32 @@ async def play(ctx, *, search): #play
     print(search_results)
     #await ctx.send('https://www.youtube.com/watch?v=' + search_results[0])
 
-    canal = ctx.message.author.voice.channel
+    
+
+    try:
+        canal = ctx.message.author.voice.channel
+    except Exception as e:
+        await ctx.send("**Bop bop... ñeee Primero conectate a un canal de voz**")
+    
+    v = discord.utils.get(client.voice_clients, guild=ctx.guild)
+
     song_there = os.path.isfile("song.mp3")
     try:
         if song_there:
             os.remove("song.mp3")
     except PermissionError:
-        await ctx.send("Espera a la lista de reproduccion o escribe >stop")
-        return
+        if v.is_connected():
+            await ctx.send(f"Sorry, estoy ocupado en otro canal de voz **{str(v.channel)}**")
+            return #probar que hace sin el return
 
     #voiceChannel = discord.utils.get(ctx.guild.voice_channels, name = "GTA V Online")
     
     #await voiceChannel.connect()
-    await canal.connect()
+    try:
+        await canal.connect()    
+    except Exception as e:
+        print("el bot ya esta conectado")
+    
     voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
 
     ydl_opts = {
@@ -103,11 +130,29 @@ async def play(ctx, *, search): #play
             os.rename(file, "song.mp3")
     voice.play(discord.FFmpegPCMAudio("song.mp3"),after=lambda e: print("la cancion termino")) #play a la canción
     print("**La canción se ha reproducido**")
-    await ctx.send("**Escuchando** "+str(name))
+    pyer = str(ctx.message.author)
+    if pyer == "͋̈́ͫ҉N͋̈́ͫ҉o͋̈́ͫ҉i͋̈́ͫ҉s͋̈́ͫ҉e#9923":
+        await ctx.send("**Reproduciendo para mi bb ͋̈́ͫ҉N͋̈́ͫ҉o͋̈́ͫ҉i͋̈́ͫ҉s͋̈́ͫ҉e** "+str(name))
+        #await ctx.send("Espero te guste ❤👉👌❤")
+    else:
+        await ctx.send("**Escuchando** "+str(name))
     #lo de abajo solo es para controlar el audio pero no es tan necesario
     voice.source = discord.PCMVolumeTransformer(voice.source)
     voice.source.volume = 1.00 #1.00 es mucho
 
+
+@client.command()
+async def hola(ctx):
+    await ctx.message.channel.purge(limit=1)
+    await ctx.send("Hola a tod@s :D")
+
+@client.command()
+async def ayuda(ctx):
+    await ctx.send("Reproducir >play 'nombre de la canción'  sin comillas\nPausar >pause\nReaunidar >resume\nDetener >stop \nDesconectar del canal de voz >disconnect")
+
+@client.command()
+async def helpp(ctx):
+    await ctx.send("Reproducir >play 'nombre de la canción'  sin comillas\nPausar >pause\nReaunidar >resume\nDetener >stop \nDesconectar del canal de voz >disconnect")
 
 
 
@@ -146,7 +191,7 @@ async def stop(ctx):
     if voice.is_playing():
         voice.stop()
         await ctx.send("Musica Detenida")
-        await ctx.send(":( ya no hablo hasta que me saques, esque ando bug")
+        await ctx.send("Si no me necesitas escribe >disconnect")
     else:
         print("no se esta reproduciendo, no se puede detener")
         await ctx.send("Nada reproduciendose, no se puede detener uwu")
@@ -156,4 +201,4 @@ async def stop(ctx):
 
     
 
-client.run('ODA4ODEyMjQ1OTczOTkxNDM0.YCL_Gg.')
+client.run('')

@@ -71,6 +71,8 @@ async def youtube(ctx, *, search):
 
 
 
+#para hacer la lista puedo simplemente hacer un array que guarde las url de los videos, cuando termina una, sigue la otra y así
+
 
 
 @client.command()
@@ -82,19 +84,23 @@ async def play(ctx, *, search): #play
     print(search_results)
     #await ctx.send('https://www.youtube.com/watch?v=' + search_results[0])
 
+    
 
     try:
         canal = ctx.message.author.voice.channel
     except Exception as e:
         await ctx.send("**Bop bop... ñeee Primero conectate a un canal de voz**")
     
+    v = discord.utils.get(client.voice_clients, guild=ctx.guild)
+
     song_there = os.path.isfile("song.mp3")
     try:
         if song_there:
             os.remove("song.mp3")
     except PermissionError:
-        await ctx.send("Espera a la lista de reproduccion o escribe >stop")
-        return
+        if v.is_connected():
+            await ctx.send(f"Sorry, estoy ocupado en otro canal de voz **{str(v.channel)}**")
+            return #probar que hace sin el return
 
     #voiceChannel = discord.utils.get(ctx.guild.voice_channels, name = "GTA V Online")
     
@@ -124,16 +130,21 @@ async def play(ctx, *, search): #play
             os.rename(file, "song.mp3")
     voice.play(discord.FFmpegPCMAudio("song.mp3"),after=lambda e: print("la cancion termino")) #play a la canción
     print("**La canción se ha reproducido**")
-    await ctx.send("**Escuchando** "+str(name))
+    pyer = str(ctx.message.author)
+    if pyer == "͋̈́ͫ҉N͋̈́ͫ҉o͋̈́ͫ҉i͋̈́ͫ҉s͋̈́ͫ҉e#9923":
+        await ctx.send("**Reproduciendo para mi bb ͋̈́ͫ҉N͋̈́ͫ҉o͋̈́ͫ҉i͋̈́ͫ҉s͋̈́ͫ҉e** "+str(name))
+        #await ctx.send("Espero te guste ❤👉👌❤")
+    else:
+        await ctx.send("**Escuchando** "+str(name))
     #lo de abajo solo es para controlar el audio pero no es tan necesario
     voice.source = discord.PCMVolumeTransformer(voice.source)
     voice.source.volume = 1.00 #1.00 es mucho
 
 
 @client.command()
-async def sexo(ctx):
+async def hola(ctx):
     await ctx.message.channel.purge(limit=1)
-    await ctx.send("No")
+    await ctx.send("Hola a tod@s :D")
 
 @client.command()
 async def ayuda(ctx):
@@ -180,7 +191,7 @@ async def stop(ctx):
     if voice.is_playing():
         voice.stop()
         await ctx.send("Musica Detenida")
-        await ctx.send(":( ya no hablo hasta que me saques, esque ando bug")
+        await ctx.send("Si no me necesitas escribe >disconnect")
     else:
         print("no se esta reproduciendo, no se puede detener")
         await ctx.send("Nada reproduciendose, no se puede detener uwu")
@@ -190,4 +201,4 @@ async def stop(ctx):
 
     
 
-client.run('ODA4ODEyMjQ1OTczOTkxNDM0.YCL_Gg.')
+client.run('')
