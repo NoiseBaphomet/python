@@ -25,6 +25,13 @@ async def on_ready():
     print('logueado como {0.user}'.format(client))
     activity = discord.Game(name=">ayuda ó >helpp",url="https://www.youtube.com/watch?v=V2hlQkVJZhE")
     await client.change_presence(status=discord.Status.online, activity=activity) #idle, online
+    '''
+    # Setting `Listening ` status
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="a song"))
+
+    # Setting `Watching ` status
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="a movie"))
+    '''
 
 @client.event
 async def on_member_join(member):
@@ -77,6 +84,7 @@ async def youtube(ctx, *, search):
 
 @client.command()
 async def play(ctx, *, search): #play
+    #Verificar si esta en el mismo canal que el (canaluser = ctx.message.author.voice.channel)
     
     query_string = parse.urlencode({'search_query': search})
     html_content = request.urlopen('http://www.youtube.com/results?' + query_string)
@@ -93,17 +101,22 @@ async def play(ctx, *, search): #play
     
     v = discord.utils.get(client.voice_clients, guild=ctx.guild)
 
+    
+
+    
+
     song_there = os.path.isfile("song.mp3")
     try:
         if song_there:
             os.remove("song.mp3")
     except PermissionError:
         if v.is_connected():
-            await ctx.send(f"Sorry, estoy ocupado en otro canal de voz **{str(v.channel)}**")
+            await ctx.send(f"Actualmente estoy ocupado en: **{str(v.channel)}**")
             return #probar que hace sin el return
 
     #voiceChannel = discord.utils.get(ctx.guild.voice_channels, name = "GTA V Online")
     
+
     #await voiceChannel.connect()
     try:
         await canal.connect()    
@@ -128,17 +141,30 @@ async def play(ctx, *, search): #play
             name = file
             print("Renombrando archivo")
             os.rename(file, "song.mp3")
+    
     voice.play(discord.FFmpegPCMAudio("song.mp3"),after=lambda e: print("la cancion termino")) #play a la canción
     print("**La canción se ha reproducido**")
     pyer = str(ctx.message.author)
     if pyer == "͋̈́ͫ҉N͋̈́ͫ҉o͋̈́ͫ҉i͋̈́ͫ҉s͋̈́ͫ҉e#9923":
-        await ctx.send("**Reproduciendo para mi bb ͋̈́ͫ҉N͋̈́ͫ҉o͋̈́ͫ҉i͋̈́ͫ҉s͋̈́ͫ҉e** "+str(name))
+        await ctx.send(f"**Reproduciendo para mi bb ͋̈́ͫ҉N͋̈́ͫ҉o͋̈́ͫ҉i͋̈́ͫ҉s͋̈́ͫ҉e** {name}")
+        autor = str(ctx.message.author) + " mi padre :,D"
+        embed = discord.Embed(title=f"{ctx.guild.name}", description= autor, timestamp=datetime.datetime.utcnow(), color=discord.Color.green())
+        embed.add_field(name="url", value=f"{url}", inline=True)
+        embed.set_thumbnail(url="https://i.imgur.com/XFubD8u.png")
+        await ctx.send(embed=embed)
         #await ctx.send("Espero te guste ❤👉👌❤")
     else:
-        await ctx.send("**Escuchando** "+str(name))
+        await ctx.send(f"**Escuchando** {name}")
+        autor = str(ctx.message.author) + " Reproduciendo"
+        embed = discord.Embed(title=f"{ctx.guild.name}", description= autor, timestamp=datetime.datetime.utcnow(), color=discord.Color.green())
+        embed.add_field(name="url", value=f"{url}", inline=True)
+        embed.set_thumbnail(url="https://i.imgur.com/XFubD8u.png")
+        await ctx.send(embed=embed)
     #lo de abajo solo es para controlar el audio pero no es tan necesario
     voice.source = discord.PCMVolumeTransformer(voice.source)
     voice.source.volume = 1.00 #1.00 es mucho
+
+    #APARTE!!!!!!!!!!!!
 
 
 @client.command()
@@ -159,10 +185,11 @@ async def helpp(ctx):
 @client.command()
 async def disconnect(ctx):
     voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
-    if voice.is_connected():
-        await voice.disconnect()
-    else:
-        await ctx.send("Bop Bom... No estoy connectado en un canal de voz. 😁")
+    try:
+        if voice.is_connected():
+            await voice.disconnect()
+    except Exception as e:
+        await ctx.send("Bop Bop... No estoy connectado en un canal de voz. 😁")
 
 
 @client.command()
@@ -201,4 +228,4 @@ async def stop(ctx):
 
     
 
-client.run('')
+client.run('ODA4ODEyMjQ1OTczOTkxNDM0.YCL_Gg.DvjPIrqVWskqnSWdKIFsgfxC9lE')
